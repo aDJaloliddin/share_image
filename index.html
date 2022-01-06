@@ -1,13 +1,18 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Share Image</title>
     <style>
         .u-text-center {
             text-align: center;
+        }
+
+        .u-mt-2 {
+            margin-top: 2rem;
         }
 
         .btn {
@@ -19,38 +24,42 @@
         }
     </style>
 </head>
+
 <body>
     <div class="u-text-center">
-        <button class="btn js-share" type="button">Share</button>
-        <div class="js-log">
-
-        </div>
+        <button class="btn js-share u-mt-2" type="button">Share Image</button>
     </div>
 
     <script>
         const shareBtn = document.querySelector('.js-share');
-        
+
         shareBtn.addEventListener('click', async () => {
-            document.querySelector('.js-log').textContent="button clicked";
+            const sharefile = await getShareFile('shareimg.jpg');
+            
+            if (navigator.canShare
+                && navigator.canShare({ files: [sharefile] })) {
+                try {
+                    await navigator.share({
+                        title: "Image title",
+                        text: "Image description",
+                        url: "http://example.share.link",
+                        files: [sharefile]
+                    });
 
-            try {
-                const response = await fetch('course-javascript.jpg');
-                const blob = await response.blob();
-                const file = new File([blob], 'share-img.jpg', { type: blob.type });
+                    console.log("Data was shared successfully");
+                } catch (err) {
+                    console.log("Share failed:", err.message);
+                }
+            } else alert("Your sytstem does not support sharing files.");
 
-                await navigator.share({title: "Example page", text: "This is share link description", url: "http://test.com", files: [file]});
-                console.log("data was shared successfully");
-            } catch (err) {
-                console.log("Share failed:", err.message);
-            }
         })
 
-        async function getImg(shareImg) {
-            const response = await fetch(shareImg);
+        async function getShareFile(file) {
+            const response = await fetch(file);
             const blob = await response.blob();
-            const file = new File([blob], 'share-img.jpg', {type: blob.type});
-            return file;
+            return new File([blob], 'share-img.jpg', { type: blob.type });
         }
     </script>
 </body>
+
 </html>
